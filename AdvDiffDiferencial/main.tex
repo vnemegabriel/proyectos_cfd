@@ -8,14 +8,90 @@
 \usepackage{a4wide} 
 \pagestyle{empty} 
 
-\title{Solución analítica y numérica de la ecuación de advección-difusión}
+\title{Solución analítica de la ecuación de advección-difusión: advección pura no estacionaria sin fuente}
 \author{Valentin Neme Gabriel, Legajo: 63091 \\ Lourdes Parisi, Legajo: }
+
+\input{macros.tex}
 
 \begin{document}
 \maketitle
 \thispagestyle{empty}
 
+\section{Desarrollo del problema}
 
-  
- 
+Partimos de la ecuación general de advección-difusión con fuente para una magnitud escalar $u(x,t)$:
+
+$$
+\pdiff{u}{t}  - \nu\nabla\cdot\left(\nabla u\right)  + \nabla\cdot(\mathbf{v}u)= S
+$$
+
+Para el caso de estudio -- advección pura no estacionaria sin fuente -- se consideran las siguientes hipótesis:
+\begin{itemize}
+    \item \textbf{Advección pura:} $\nu=0$.
+    \item \textbf{Sin fuente:} $S=0$.
+    \item \textbf{Velocidad constante y flujo incompresible en 1D:} $\mathbf{v}=c\,\hat\imath$, con $c$ constante. Al ser un campo uniforme, su divergencia es nula ($\nabla \cdot \mathbf{v} = 0$), lo que permite extraer la velocidad del operador divergencia y evitar la deformación del perfil.
+\end{itemize}
+
+Con estas simplificaciones, la ecuación gobernante se reduce a la ecuación de advección lineal unidimensional:
+
+$$
+\pdiff{u}{t} + c\pdiff{u}{x} = 0,
+\qquad
+u(x,0)=u_0(x)
+$$
+
+donde $u_0(x)$ es la condición inicial.
+
+\subsection{Resolución analítica mediante el método de las características}
+
+Se busca una curva $x=x(t)$ en el plano $(x,t)$ tal que, a lo largo de ella, la ecuación en derivadas parciales se transforme en una ecuación diferencial ordinaria. Aplicando la regla de la cadena:
+
+$$
+\diff{u}{t} = \pdiff{u}{t} + \diff{x}{t}\pdiff{u}{x}
+$$
+
+Al comparar con la ecuación de advección, se obtiene el sistema característico:
+
+$$
+\diff{x}{t}=c,
+\qquad
+\diff{u}{t}=0
+$$
+
+Integrando la primera ecuación:
+
+$$
+x(t)=ct+x_0
+$$
+
+donde $x_0$ representa la posición inicial de cada característica en $t=0$. Por otro lado, de $du/dt=0$ se concluye que $u$ permanece constante sobre cada característica:
+
+$$
+u\big(x(t),t\big)=u(x_0,0)=u_0(x_0)
+$$
+
+Despejando $x_0$ de la ecuación de las características,
+
+$$
+x_0=x-ct
+$$
+
+y sustituyendo, se obtiene la solución analítica general:
+
+$$
+u(x,t)=u_0(x-ct)
+$$
+
+\subsection{Interpretación física}
+
+La expresión analítica $u(x,t)=u_0(x-ct)$ indica que el perfil inicial de la propiedad escalar se transporta rígidamente a través del dominio, manteniendo intacta su forma original. Dependiendo del signo de la velocidad escalar constante $c$:
+\begin{itemize}
+    \item Si $c>0$, el perfil se desplaza hacia la derecha.
+    \item Si $c<0$, el perfil se desplaza hacia la izquierda.
+\end{itemize}
+
+Físicamente, este resultado ilustra la dualidad entre dos marcos de referencia. Desde una perspectiva Lagrangiana (moviéndose con el fluido a velocidad $c$), la derivada material es nula ($du/dt = 0$), por lo que la partícula fluida conserva su concentración original indefinidamente. Desde una perspectiva Euleriana (en un punto fijo del espacio), la variación temporal local se equilibra exactamente con el gradiente espacial que la corriente arrastra a través de dicho punto ($\partial u/\partial t = -c \partial u/\partial x$).
+
+Es importante destacar que la preservación exacta de la forma del perfil se debe a la combinación de dos factores: la ausencia de términos de difusión ($\nu=0$), que evita el ensanchamiento del pulso, y la suposición de un campo de velocidades uniforme y constante ($\nabla \cdot \mathbf{v} = 0$), que garantiza que el fluido no se comprime ni se expande, evitando así el estiramiento o compresión geométrica del perfil advectado.
+
 \end{document}
