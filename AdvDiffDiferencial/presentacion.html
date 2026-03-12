@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advección Pura - Método y Física</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Merriweather:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #e2e8f0;
+            display: grid;
+            place-items: center;
+            min-height: 100vh;
+        }
+
+        .slide-container {
+            background-color: #fbfaf5;
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            font-family: "DM Sans", sans-serif;
+            height: 720px;
+            width: 1280px;
+            overflow: hidden;
+            padding: 40px 50px;
+            position: relative;
+        }
+
+        /* Subtle geometric background */
+        .slide-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: radial-gradient(#cbd5e0 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: 0.4;
+            z-index: 0;
+        }
+
+        .slide-container>* {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            border-bottom: 2px solid #2b6cb0;
+            padding-bottom: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .header-title {
+            color: #2b6cb0;
+            font-family: "Merriweather", serif;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .header-meta {
+            color: #4a5568;
+            font-size: 15px;
+            text-align: right;
+            line-height: 1.3;
+        }
+
+        /* Layout */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 52% 48%;
+            gap: 40px;
+            height: 100%;
+        }
+
+        .section-title {
+            color: #2d3748;
+            font-family: "Merriweather", serif;
+            font-size: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3182ce;
+            padding-left: 10px;
+        }
+
+        /* Left Column: Math Proof */
+        .math-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .math-step {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 12px 18px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .step-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: #4a5568;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .math-inline-text {
+            font-size: 15px;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        /* Right Column: Physics */
+        .physics-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .physics-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .physics-list li {
+            position: relative;
+            padding-left: 55px;
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding-top: 15px;
+            padding-bottom: 15px;
+            padding-right: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .physics-list li i {
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            font-size: 24px;
+            color: #3182ce;
+        }
+
+        .physics-title {
+            color: #2b6cb0;
+            font-weight: 700;
+            font-size: 17px;
+            margin-bottom: 6px;
+        }
+
+        .physics-text {
+            color: #4a5568;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .physics-text strong {
+            color: #2d3748;
+        }
+
+        /* MathML Setup */
+        math {
+            display: math;
+            font-family: "Merriweather", serif;
+        }
+
+        .formula-container {
+            text-align: center;
+            color: #2b6cb0;
+            font-size: 20px;
+            margin: 8px 0;
+        }
+
+        .math-inline {
+            font-size: 15px;
+            color: #2b6cb0;
+            font-weight: 700;
+        }
+
+        /* Special Solution Box */
+        .solution-box {
+            background-color: #ebf8ff;
+            border: 2px solid #3182ce;
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+            margin-top: 5px;
+            box-shadow: 0 4px 6px rgba(49, 130, 206, 0.15);
+        }
+
+        .solution-box .step-label {
+            color: #2b6cb0;
+        }
+
+        .solution-box .formula-container {
+            color: #2b6cb0;
+            font-size: 26px;
+            font-weight: 700;
+            margin: 5px 0 0 0;
+        }
+
+        .flex-row-math {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        /* Botón de descarga y reglas de impresión */
+        .download-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #3182ce;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 25px;
+            font-family: "DM Sans", sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background-color 0.3s, transform 0.2s;
+            z-index: 1000;
+        }
+
+        .download-btn:hover {
+            background-color: #2b6cb0;
+            transform: translateY(-2px);
+        }
+
+        @media print {
+            @page {
+                size: 1280px 720px;
+                margin: 0;
+            }
+
+            body {
+                background-color: #fbfaf5;
+                padding: 0;
+                display: block;
+            }
+
+            .slide-container {
+                box-shadow: none;
+                border-radius: 0;
+                width: 1280px;
+                height: 720px;
+                margin: 0;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="slide-container" id="slide1">
+
+        <!-- Header -->
+        <div class="header">
+            <h1 class="header-title">Solución Analítica: Advección Pura</h1>
+            <div class="header-meta">
+                <strong>Valentín Neme Gabriel</strong> (63091)<br>
+                <strong>Lourdes Parisi</strong> (64014)<br>
+                12 de marzo de 2026
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content-grid">
+
+            <!-- Left: Math Proof (Corrected & Expanded) -->
+            <div class="math-section">
+                <h2 class="section-title">Método de las Características</h2>
+
+                <div class="math-step">
+                    <div class="step-label">1. Ecuación Reducida y Condiciones</div>
+                    <div class="math-inline-text">
+                        Hipótesis: <math class="math-inline">
+                            <mi>&#x03BD;</mi>
+                            <mo>=</mo>
+                            <mn>0</mn>
+                        </math>, <math class="math-inline">
+                            <mi>S</mi>
+                            <mo>=</mo>
+                            <mn>0</mn>
+                        </math>, <math class="math-inline">
+                            <mo>&#x2207;</mo>
+                            <mo>&#x22C5;</mo>
+                            <mi>v</mi>
+                            <mo>=</mo>
+                            <mn>0</mn>
+                        </math> (incompresible).<br>
+                        <strong>Condición inicial:</strong> <math class="math-inline">
+                            <mi>u</mi>
+                            <mo>(</mo>
+                            <mi>x</mi>
+                            <mo>,</mo>
+                            <mn>0</mn>
+                            <mo>)</mo>
+                            <mo>=</mo>
+                            <msub>
+                                <mi>u</mi>
+                                <mn>0</mn>
+                            </msub>
+                            <mo>(</mo>
+                            <mi>x</mi>
+                            <mo>)</mo>
+                        </math>
+                    </div>
+                    <div class="formula-container">
+                        <math xmlns="http://www.w3.org/1998/Math/MathML">
+                            <mfrac>
+                                <mrow>
+                                    <mo>&#x2202;</mo>
+                                    <mi>u</mi>
+                                </mrow>
+                                <mrow>
+                                    <mo>&#x2202;</mo>
+                                    <mi>t</mi>
+                                </mrow>
+                            </mfrac>
+                            <mo>+</mo>
+                            <mi>c</mi>
+                            <mfrac>
+                                <mrow>
+                                    <mo>&#x2202;</mo>
+                                    <mi>u</mi>
+                                </mrow>
+                                <mrow>
+                                    <mo>&#x2202;</mo>
+                                    <mi>x</mi>
+                                </mrow>
+                            </mfrac>
+                            <mo>=</mo>
+                            <mn>0</mn>
+                        </math>
+                    </div>
+                </div>
+
+                <div class="math-step">
+                    <div class="step-label">2. Regla de la Cadena</div>
+                    <div class="math-inline-text">Buscamos una curva <math class="math-inline">
+                            <mi>x</mi>
+                            <mo>(</mo>
+                            <mi>t</mi>
+                            <mo>)</mo>
+                        </math> tal que la EDP sea una EDO:</div>
+                    <div class="formula-container">
+                        <math xmlns="http://www.w3.org/1998/Math/MathML">
+                            <mfrac>
+                                <mrow>
+                                    <mi>d</mi>
+                                    <mi>u</mi>
+                                </mrow>
+                                <mrow>
+                                    <mi>d</mi>
+                                    <mi>t</mi>
+                                </mrow>
+                            </mfrac>
+                            <mo>=</mo>
+                            <mfrac>
+                                <mrow>
+                                    <mo>&#x2202;</mo>
+                                    <mi>u</mi>
+                                </mrow>
+                                <mrow>
+                                    <mo>&#x2202;</mo>
+                                    <mi>t</mi>
+                                </mrow>
+                            </mfrac>
+                            <mo>+</mo>
+                            <mfrac>
+                                <mrow>
+                                    <mi>d</mi>
+                                    <mi>x</mi>
+                                </mrow>
+                                <mrow>
+                                    <mi>d</mi>
+                                    <mi>t</mi>
+                                </mrow>
+                            </mfrac>
+                            <mfrac>
+                                <mrow>
+                                    <mo>&#x2202;</mo>
+                                    <mi>u</mi>
+                                </mrow>
+                                <mrow>
+                                    <mo>&#x2202;</mo>
+                                    <mi>x</mi>
+                                </mrow>
+                            </mfrac>
+                        </math>
+                    </div>
+                </div>
+
+                <div class="math-step">
+                    <div class="step-label">3. Sistema Característico e Integración</div>
+                    <div class="flex-row-math">
+                        <div class="formula-container" style="margin:0;">
+                            <math xmlns="http://www.w3.org/1998/Math/MathML">
+                                <mfrac>
+                                    <mrow>
+                                        <mi>d</mi>
+                                        <mi>x</mi>
+                                    </mrow>
+                                    <mrow>
+                                        <mi>d</mi>
+                                        <mi>t</mi>
+                                    </mrow>
+                                </mfrac>
+                                <mo>=</mo>
+                                <mi>c</mi>
+                                <mo>&#x21D2;</mo>
+                                <mi>x</mi>
+                                <mo>(</mo>
+                                <mi>t</mi>
+                                <mo>)</mo>
+                                <mo>=</mo>
+                                <mi>c</mi>
+                                <mi>t</mi>
+                                <mo>+</mo>
+                                <msub>
+                                    <mi>x</mi>
+                                    <mn>0</mn>
+                                </msub>
+                            </math>
+                        </div>
+                    </div>
+                    <div class="flex-row-math">
+                        <div class="formula-container" style="margin:0;">
+                            <math xmlns="http://www.w3.org/1998/Math/MathML">
+                                <mfrac>
+                                    <mrow>
+                                        <mi>d</mi>
+                                        <mi>u</mi>
+                                    </mrow>
+                                    <mrow>
+                                        <mi>d</mi>
+                                        <mi>t</mi>
+                                    </mrow>
+                                </mfrac>
+                                <mo>=</mo>
+                                <mn>0</mn>
+                                <mo>&#x21D2;</mo>
+                                <mi>u</mi>
+                                <mo>=</mo>
+                                <msub>
+                                    <mi>u</mi>
+                                    <mn>0</mn>
+                                </msub>
+                                <mo>(</mo>
+                                <msub>
+                                    <mi>x</mi>
+                                    <mn>0</mn>
+                                </msub>
+                                <mo>)</mo>
+                            </math>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="solution-box">
+                    <div class="step-label">4. Solución General Analítica (<math class="math-inline"
+                            style="color:#2b6cb0">
+                            <msub>
+                                <mi>x</mi>
+                                <mn>0</mn>
+                            </msub>
+                            <mo>=</mo>
+                            <mi>x</mi>
+                            <mo>-</mo>
+                            <mi>c</mi>
+                            <mi>t</mi>
+                        </math>)</div>
+                    <div class="formula-container">
+                        <math xmlns="http://www.w3.org/1998/Math/MathML">
+                            <mi>u</mi>
+                            <mo>(</mo>
+                            <mi>x</mi>
+                            <mo>,</mo>
+                            <mi>t</mi>
+                            <mo>)</mo>
+                            <mo>=</mo>
+                            <msub>
+                                <mi>u</mi>
+                                <mn>0</mn>
+                            </msub>
+                            <mo>(</mo>
+                            <mi>x</mi>
+                            <mo>-</mo>
+                            <mi>c</mi>
+                            <mi>t</mi>
+                            <mo>)</mo>
+                        </math>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Physical Interpretation (Optimized for scanning) -->
+            <div class="physics-section">
+                <h2 class="section-title">Interpretación Física</h2>
+
+                <ul class="physics-list">
+                    <li>
+                        <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                        <div class="physics-title">Transporte Rígido</div>
+                        <div class="physics-text">
+                            El perfil <math class="math-inline">
+                                <msub>
+                                    <mi>u</mi>
+                                    <mn>0</mn>
+                                </msub>
+                            </math> <strong>viaja intacto</strong>. Se desplaza a la derecha si <math
+                                class="math-inline">
+                                <mi>c</mi>
+                                <mo>&#x003E;</mo>
+                                <mn>0</mn>
+                            </math>, y a la izquierda si <math class="math-inline">
+                                <mi>c</mi>
+                                <mo>&#x003C;</mo>
+                                <mn>0</mn>
+                            </math>.
+                        </div>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-water"></i>
+                        <div class="physics-title">Perspectiva Lagrangiana</div>
+                        <div class="physics-text">
+                            Moviéndose con el fluido, la <strong>derivada material es nula</strong> (<math
+                                class="math-inline">
+                                <mi>d</mi>
+                                <mi>u</mi>
+                                <mo>/</mo>
+                                <mi>d</mi>
+                                <mi>t</mi>
+                                <mo>=</mo>
+                                <mn>0</mn>
+                            </math>). La partícula conserva su concentración original.
+                        </div>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-location-dot"></i>
+                        <div class="physics-title">Perspectiva Euleriana</div>
+                        <div class="physics-text">
+                            En un punto fijo, la <strong>variación temporal</strong> se equilibra exactamente con el
+                            <strong>gradiente espacial</strong> arrastrado por la corriente.
+                        </div>
+                    </li>
+                    <li>
+                        <i class="fa-solid fa-shapes"></i>
+                        <div class="physics-title">Preservación de la Forma</div>
+                        <div class="physics-text">
+                            <strong>No hay ensanchamiento</strong> por ausencia de difusión (<math class="math-inline">
+                                <mi>&#x03BD;</mi>
+                                <mo>=</mo>
+                                <mn>0</mn>
+                            </math>), y <strong>no hay estiramiento</strong> al ser incompresible (<math
+                                class="math-inline">
+                                <mo>&#x2207;</mo>
+                                <mo>&#x22C5;</mo>
+                                <mi>v</mi>
+                                <mo>=</mo>
+                                <mn>0</mn>
+                            </math>).
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Botón para descargar como PDF -->
+    <button class="download-btn no-print" onclick="window.print()">
+        <i class="fa-solid fa-file-pdf"></i> Guardar como PDF
+    </button>
+
+</body>
+
+</html>
